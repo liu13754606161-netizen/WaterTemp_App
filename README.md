@@ -101,6 +101,8 @@ PyQt5>=5.15.0
 
 **Windows**：双击 `start_desktop.bat`。脚本会自动检查 Python 3.11 和依赖，缺什么就装什么，然后启动程序。
 
+> 注意：请用 **Python 3.11** 运行（`start_desktop.bat` 已自动选用）。若系统默认 Python 版本不同，直接 `python app.py` 可能因缺少依赖报错。
+
 也可以用命令行：
 
 ```bash

@@ -1,0 +1,4 @@
+# GitHub 语言统计只反映软件本体（Python），不把展示页算作项目代码
+showcase/index.html linguist-documentation
+showcase/assets/* linguist-vendored
+showcase/preview.png linguist-vendored

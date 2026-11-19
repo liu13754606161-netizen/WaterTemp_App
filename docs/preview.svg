@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" font-family="Microsoft YaHei, PingFang SC, Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1f35"/><stop offset="1" stop-color="#123c5e"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2b8ce6"/><stop offset="1" stop-color="#0fb3a4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="#e9f0f7"/>
+  <!-- title bar -->
+  <rect x="40" y="24" width="1120" height="52" rx="10" fill="url(#bg)"/>
+  <g transform="translate(62,39)">
+    <rect width="22" height="22" rx="6" fill="url(#wave)"/>
+    <path d="M3 9 q4 -3 8 0 t8 0 M3 14 q4 -3 8 0 t8 0" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+  <text x="96" y="56" fill="#fff" font-size="15" font-weight="600">RiverTemp-Reconstructor</text>
+  <text x="300" y="56" fill="#88a6c2" font-size="12">河流水温模拟软件 · v1.0</text>
+  <g fill="#7d9bb8"><circle cx="1120" cy="50" r="4"/><circle cx="1106" cy="50" r="4"/><circle cx="1092" cy="50" r="4"/></g>
+  <!-- app body -->
+  <rect x="40" y="76" width="1120" height="580" rx="10" fill="#fff"/>
+  <path d="M40 86 q0 -10 10 -10 h200 v580 h-200 q-10 0 -10 -10 z" fill="#102033"/>
+  <!-- sidebar -->
+  <text x="64" y="116" fill="#5f7f9d" font-size="11" letter-spacing="2">WORKFLOW</text>
+  <g font-size="13">
+    <rect x="52" y="132" width="196" height="44" rx="8" fill="#1a6fd4"/>
+    <circle cx="74" cy="154" r="10" fill="#2b8ce6"/><text x="70" y="159" fill="#fff" font-size="11" font-weight="700">01</text>
+    <text x="94" y="159" fill="#fff" font-weight="600">数据导入</text>
+    <g fill="#8da9c4">
+      <circle cx="74" cy="204" r="10" fill="#1b3550"/><text x="70" y="208" font-size="11" fill="#8da9c4">02</text>
+      <text x="94" y="208">模型训练</text>
+      <circle cx="74" cy="254" r="10" fill="#1b3550"/><text x="70" y="258" font-size="11">03</text>
+      <text x="94" y="258">结果可视化</text>
+      <circle cx="74" cy="304" r="10" fill="#1b3550"/><text x="70" y="308" font-size="11">04</text>
+      <text x="94" y="308">结果导出</text>
+    </g>
+  </g>
+  <line x1="56" y1="600" x2="244" y2="600" stroke="#24405c"/>
+  <text x="64" y="626" fill="#5f7f9d" font-size="11">数据  365 条</text>
+  <text x="64" y="646" fill="#5f7f9d" font-size="11">映射  未确认</text>
+  <!-- tabs -->
+  <g font-size="12">
+    <rect x="268" y="96" width="118" height="34" rx="6" fill="#e8f2ff"/><text x="289" y="118" fill="#1a6fd4" font-weight="600">数据导入</text>
+    <text x="412" y="118" fill="#7c8fa3">模型训练</text>
+    <text x="512" y="118" fill="#7c8fa3">结果可视化</text>
+    <text x="632" y="118" fill="#7c8fa3">结果导出</text>
+  </g>
+  <line x1="268" y1="138" x2="1132" y2="138" stroke="#e3eaf2"/>
+  <!-- content -->
+  <text x="268" y="174" fill="#102033" font-size="18" font-weight="700">数据导入</text>
+  <text x="268" y="198" fill="#6b7f93" font-size="12">读取 CSV 文件，完成列名映射后进入模型训练</text>
+  <!-- toolbar -->
+  <rect x="268" y="218" width="864" height="52" rx="8" fill="#f5f8fc"/>
+  <rect x="284" y="232" width="360" height="24" rx="5" fill="#fff" stroke="#d6e0ea"/>
+  <text x="296" y="249" fill="#5b7086" font-size="11">示例数据.csv  ·  365 行 × 7 列</text>
+  <rect x="658" y="230" width="116" height="28" rx="6" fill="#fff" stroke="#cbd8e5"/>
+  <text x="675" y="249" fill="#3c5470" font-size="11">选择 CSV 文件</text>
+  <rect x="786" y="230" width="116" height="28" rx="6" fill="#1a6fd4"/>
+  <text x="803" y="249" fill="#fff" font-size="11">加载示例数据</text>
+  <!-- mapping -->
+  <text x="268" y="300" fill="#102033" font-size="13" font-weight="600">列名映射</text>
+  <g font-size="11">
+    <text x="268" y="328" fill="#6b7f93">时间列</text>
+    <rect x="326" y="313" width="150" height="24" rx="5" fill="#fff" stroke="#cbd8e5"/><text x="338" y="329" fill="#3c5470">time</text>
+    <text x="494" y="328" fill="#6b7f93">气温列</text>
+    <rect x="552" y="313" width="150" height="24" rx="5" fill="#fff" stroke="#cbd8e5"/><text x="564" y="329" fill="#3c5470">Ta</text>
+    <text x="720" y="328" fill="#6b7f93">水温列</text>
+    <rect x="778" y="313" width="150" height="24" rx="5" fill="#fff" stroke="#cbd8e5"/><text x="790" y="329" fill="#3c5470">Tw</text>
+  </g>
+  <!-- table -->
+  <text x="268" y="372" fill="#102033" font-size="13" font-weight="600">数据预览</text>
+  <rect x="268" y="384" width="864" height="230" rx="8" fill="#fff" stroke="#dde6ef"/>
+  <rect x="268" y="384" width="864" height="34" rx="8" fill="#eef4fa"/>
+  <g fill="#4c6480" font-size="11">
+    <text x="282" y="406">Station_Name</text><text x="396" y="406">basin</text><text x="496" y="406">river</text>
+    <text x="590" y="406">time</text><text x="730" y="406">Ta</text><text x="848" y="406">Tw</text>
+  </g>
+  <g fill="#334c66" font-size="11">
+    <text x="282" y="436">一道湾</text><text x="396" y="436">西北诸河</text><text x="496" y="436">UNKNOWN</text><text x="590" y="436">2022/1/1 0:00</text><text x="730" y="436">-25.206</text><text x="848" y="436">5.944</text>
+    <text x="282" y="466">一道湾</text><text x="396" y="466">西北诸河</text><text x="496" y="466">UNKNOWN</text><text x="590" y="466">2022/1/2 0:00</text><text x="730" y="466">-26.662</text><text x="848" y="466">5.983</text>
+    <text x="282" y="496">一道湾</text><text x="396" y="496">西北诸河</text><text x="496" y="496">UNKNOWN</text><text x="590" y="496">2022/1/3 0:00</text><text x="730" y="496">-25.041</text><text x="848" y="496">6.078</text>
+    <text x="282" y="526">一道湾</text><text x="396" y="526">西北诸河</text><text x="496" y="526">UNKNOWN</text><text x="590" y="526">2022/1/4 0:00</text><text x="730" y="526">-23.221</text><text x="848" y="526">5.992</text>
+    <text x="282" y="556">一道湾</text><text x="396" y="556">西北诸河</text><text x="496" y="556">UNKNOWN</text><text x="590" y="556">2022/1/5 0:00</text><text x="730" y="556">-22.704</text><text x="848" y="556">6.031</text>
+    <text x="282" y="586">一道湾</text><text x="396" y="586">西北诸河</text><text x="496" y="586">UNKNOWN</text><text x="590" y="586">2022/1/6 0:00</text><text x="730" y="586">-24.113</text><text x="848" y="586">6.012</text>
+  </g>
+  <g stroke="#eef3f8"><line x1="268" y1="418" x2="1132" y2="418"/><line x1="268" y1="448" x2="1132" y2="448"/><line x1="268" y1="478" x2="1132" y2="478"/><line x1="268" y1="508" x2="1132" y2="508"/><line x1="268" y1="538" x2="1132" y2="538"/><line x1="268" y1="568" x2="1132" y2="568"/></g>
+  <text x="268" y="638" fill="#6b7f93" font-size="11">已载入 365 条记录  ·  有效记录 365 条</text>
+  <rect x="972" y="624" width="160" height="28" rx="6" fill="#1a6fd4"/>
+  <text x="1001" y="643" fill="#fff" font-size="11">确认列名映射</text>
+</svg>

@@ -4,8 +4,6 @@
 
 **数据导入 · 模型训练 · 结果可视化 · 结果导出**
 
-[![打开交互展示页](https://img.shields.io/badge/交互展示页-在线打开-0967A8?style=for-the-badge)](https://liu13754606161-netizen.github.io/WaterTemp_App/)
-
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)]()
 [![PyQt5](https://img.shields.io/badge/GUI-PyQt5-00A2AD)]()
 [![scikit--learn](https://img.shields.io/badge/ML-scikit--learn-F7931E?logo=scikitlearn&logoColor=white)]()
@@ -16,11 +14,7 @@
 
 ## 软件界面
 
-[![软件界面预览](docs/preview.svg)](https://liu13754606161-netizen.github.io/WaterTemp_App/)
-
-[点击打开交互展示页 →](https://liu13754606161-netizen.github.io/WaterTemp_App/)
-
-展示页复刻了软件主窗口的四个标签页，可直接点选操作：加载示例数据、确认列名映射、切换模型训练、比较模型、查看图表、导出结果。
+![软件界面预览](docs/preview.svg)
 
 ### 01 数据导入
 
@@ -82,7 +76,6 @@
 
 ```
 WaterTemp_App/
-├── index.html                  交互展示页（GitHub Pages 入口）
 ├── app.py                      主窗口与四个功能页
 ├── core.py                     数据读取、序列构建、模型调用
 ├── metrics.py                  RMSE / MAE / R² / NSE
@@ -99,4 +92,4 @@ WaterTemp_App/
 
 ---
 
-[在线交互展示](https://liu13754606161-netizen.github.io/WaterTemp_App/) · [仓库地址](https://github.com/liu13754606161-netizen/WaterTemp_App)
+[仓库地址](https://github.com/liu13754606161-netizen/WaterTemp_App)

@@ -9,6 +9,16 @@
 [![scikit-learn](https://img.shields.io/badge/ML-scikit--learn-F7931E?logo=scikitlearn&logoColor=white)]()
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)]()
 
+<br>
+
+**[🌊 交互式展示页 —— 点此在浏览器里体验完整操作流程](showcase/index.html)**
+
+<br>
+
+[![软件界面预览 · 点击进入交互展示页](showcase/preview.png)](showcase/index.html)
+
+<sub>上图为展示页首屏；点击图片或上方链接，可在浏览器中逐步操作软件四个模块（无需安装依赖）</sub>
+
 </div>
 
 ---

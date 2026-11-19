@@ -11,11 +11,11 @@
 
 <br>
 
-**[🌊 交互式展示页 —— 点此在浏览器里体验完整操作流程](showcase/index.html)**
+**[🌊 打开交互展示页 —— 在线体验完整操作流程](https://liu13754606161-netizen.github.io/WaterTemp_App/)**
 
 <br>
 
-[![软件界面预览 · 点击进入交互展示页](showcase/preview.png)](showcase/index.html)
+[![软件界面预览 · 点击进入交互展示页](docs/preview.png)](https://liu13754606161-netizen.github.io/WaterTemp_App/)
 
 <sub>上图为展示页首屏；点击图片或上方链接，可在浏览器中逐步操作软件四个模块（无需安装依赖）</sub>
 
@@ -144,8 +144,9 @@ WaterTemp_App/
 │   ├── requirements.txt         依赖清单
 │   ├── start_desktop.bat        Windows 一键启动
 │   └── clean_cache.bat          缓存清理
-└── showcase/                    交互式展示页（次要，浏览器直接打开）
-    ├── index.html               模拟软件操作的网页
+└── docs/                         交互展示页（GitHub Pages 在线演示）
+    ├── index.html               展示页（在线地址见文首）
+    ├── preview.png               README 顶部预览图
     └── assets/                  网页所用图片
 ```
 

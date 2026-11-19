@@ -1,725 +1,1450 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>RiverTemp-Reconstructor</title>
+
 <style>
+
 :root{
+
   --ink:#102033; --ink2:#3c5470; --blue:#1a6fd4; --blue2:#2b8ce6; --teal:#0fb3a4;
+
 }
+
 *{box-sizing:border-box;margin:0;padding:0}
+
 body{
+
   font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Segoe UI",system-ui,sans-serif;
+
   background:#eef3f8;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+
 }
+
 .mono{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace}
 
+
+
 /* ===== shell ===== */
+
 .shell{
+
   max-width:1280px;margin:20px auto 34px;
+
   height:calc(100vh - 54px);min-height:660px;max-height:940px;
+
   display:grid;grid-template-columns:216px 1fr;
+
   background:#fff;border:1px solid #cfdae6;border-radius:14px;overflow:hidden;
+
   box-shadow:0 6px 14px rgba(8,36,60,.06),0 34px 70px -30px rgba(8,36,60,.34);
+
 }
+
 /* ===== side ===== */
+
 .side{
+
   background:linear-gradient(165deg,#0c3354 0%,#08243d 48%,#0a2c48 100%);
+
   color:#d5e8f7;padding:22px 14px 16px;display:flex;flex-direction:column;min-height:0;
+
   position:relative;overflow:hidden;
+
 }
+
 .side::before{content:"";position:absolute;left:-90px;bottom:-120px;width:300px;height:300px;border-radius:50%;
+
   background:radial-gradient(circle,rgba(15,179,164,.22),transparent 68%);pointer-events:none}
+
 .sbrand{display:flex;align-items:center;gap:10px;padding:0 6px 20px;position:relative}
+
 .slogo{width:36px;height:36px;border-radius:10px;background:linear-gradient(140deg,#2b8ce6,#0fb3a4);
+
   display:grid;place-items:center;flex:none;box-shadow:0 6px 14px -6px rgba(43,140,230,.9)}
+
 .sbrand b{font-size:12.5px;line-height:1.3;display:block;color:#fff;letter-spacing:.1px}
+
 .sbrand small{font-size:10px;color:#8fb8d6;letter-spacing:.3px}
+
 .slabel{font-size:10px;color:#6d93b1;letter-spacing:1.6px;padding:0 8px 7px;position:relative}
+
 .naviwrap{position:relative}
+
 .navi{
+
   width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;margin-bottom:5px;
+
   border:0;border-left:3px solid transparent;border-radius:8px;background:transparent;
+
   color:#a9c6dc;font-size:12.5px;cursor:pointer;text-align:left;font-family:inherit;
+
   transition:.18s;position:relative;
+
 }
+
 .navi:hover{background:rgba(255,255,255,.07);color:#fff}
+
 .navi.on{background:rgba(255,255,255,.12);color:#fff;font-weight:700;border-left-color:#38a5ea}
+
 .navi .ic{font-size:15px;width:18px;text-align:center;flex:none}
+
 .navi .cnt{margin-left:auto;font-size:9.5px;padding:1px 6px;border-radius:99px;
+
   background:rgba(255,255,255,.1);color:#9fc4df;font-family:Consolas,monospace}
+
 .navi.on .cnt{background:rgba(56,165,234,.28);color:#d9efff}
+
 .sstate{margin-top:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+
   border-radius:10px;padding:12px 13px;position:relative}
+
 .sstate h4{font-size:10px;letter-spacing:1.4px;color:#7fa6c4;margin-bottom:9px;font-weight:600}
+
 .sstate .li{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#a8c5dc;padding:3px 0}
+
 .sstate .li b{color:#e5f3ff;font-weight:600;font-family:Consolas,monospace}
+
 .sfoot{margin-top:12px;text-align:center;font-size:9.5px;color:#5f86a4;letter-spacing:.4px;position:relative}
 
+
+
 /* ===== main ===== */
+
 .main{display:flex;flex-direction:column;min-width:0;min-height:0}
+
 .tbar{height:34px;flex:none;background:linear-gradient(#f9fbfd,#eef3f9);border-bottom:1px solid #dde6f0;
+
   display:flex;align-items:center;gap:8px;padding:0 10px}
+
 .tbar .wlogo{width:16px;height:16px;border-radius:4px;background:linear-gradient(140deg,#2b8ce6,#0fb3a4);display:grid;place-items:center}
+
 .tbar .tn{font-size:11px;color:#5d7590}
+
 .tbar .wc{margin-left:auto;display:flex;gap:2px}
+
 .tbar .wc i{width:26px;height:22px;display:grid;place-items:center;font-style:normal;font-size:10px;color:#7e93a8;border-radius:4px}
+
 .tbar .wc i:hover{background:#e4ecf5}
+
 .mbar{height:28px;flex:none;display:flex;align-items:center;gap:16px;padding:0 14px;
+
   background:#fff;border-bottom:1px solid #e9eff6;font-size:11px;color:#617a94}
+
 .pbar{height:37px;flex:none;display:flex;align-items:stretch;gap:3px;padding:0 12px;
+
   background:#eef3f9;border-bottom:1px solid #dde6f0;overflow-x:auto}
+
 .ptab{display:flex;align-items:center;gap:6px;padding:0 13px;font-size:11.5px;color:#5d7590;
+
   border:1px solid transparent;border-bottom:0;cursor:pointer;white-space:nowrap;transition:.18s}
+
 .ptab:hover{background:#e5edf6;color:#2c4a68}
+
 .ptab.on{background:#fff;color:var(--blue);font-weight:700;border-color:#dde6f0;position:relative}
+
 .ptab.on::before{content:"";position:absolute;left:0;right:0;top:0;height:2.5px;background:var(--blue)}
+
 .content{flex:1;overflow-y:auto;background:#f6f9fc;padding:18px;scroll-behavior:smooth}
+
 .content::-webkit-scrollbar{width:8px}
+
 .content::-webkit-scrollbar-thumb{background:#cbd8e6;border-radius:8px;border:2px solid #f6f9fc}
+
 .status{height:25px;flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+
   padding:0 12px;background:#f0f4f9;border-top:1px solid #e0e8f2;font-size:10.5px;color:#6b819a;
+
   white-space:nowrap;overflow:hidden}
+
 .status .right{color:#8ca0b4;flex:none}
 
+
+
 /* ===== page ===== */
+
 .page{display:none}
+
 .page.on{display:block;animation:fade .25s ease}
+
 @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
+
+
 .gbox{background:#fff;border:1px solid #dbe4ef;border-radius:9px;padding:16px 14px 14px;position:relative;margin-bottom:14px}
+
 .gbox>.gt{position:absolute;top:-8px;left:11px;background:#fff;padding:0 6px;font-size:11px;color:#4a6480;font-weight:600}
+
 .row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+
 .row+.row{margin-top:11px}
+
 .row label{font-size:11px;color:#4f6a84}
+
 .hint{font-size:10.5px;color:#8095aa}
+
 .hint.ok{color:#137333;font-weight:600}
 
+
+
 .qbtn{height:27px;padding:0 13px;border-radius:5px;border:1px solid #1a6fd4;
+
   background:linear-gradient(#3f97ea,#1a6fd4);color:#fff;font-size:11.5px;font-weight:600;
+
   cursor:pointer;white-space:nowrap;font-family:inherit;transition:.16s}
+
 .qbtn:hover{filter:brightness(1.06)}
+
 .qbtn:active{transform:translateY(1px)}
+
 .qbtn.sec{background:linear-gradient(#fbfdff,#eef4fa);border-color:#c9d7e6;color:#33506d}
+
 .qbtn.sec:hover{background:#e9f1f9}
+
 .qbtn.green{background:linear-gradient(#48b96c,#34a853);border-color:#2f9a4c}
+
 .qbtn.wide{width:100%}
+
 .qbtn.sm{height:24px;padding:0 10px;font-size:10.5px}
+
 .qbtn[disabled]{opacity:.44;cursor:not-allowed;filter:grayscale(.4)}
 
+
+
 .combowrap{position:relative;display:inline-flex}
+
 .qcombo{height:27px;min-width:118px;padding:0 9px;border:1px solid #c9d7e6;border-radius:5px;background:#fff;
+
   display:inline-flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;color:#25384c;cursor:pointer}
+
 .qcombo::after{content:"";width:0;height:0;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4px solid #7e93a8}
+
 .qcombo:hover{border-color:#8fb6dd}
+
 .qcombo.open{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,111,212,.1)}
+
 .menu{display:none;position:absolute;top:30px;left:0;min-width:215px;background:#fff;border:1px solid #cfdae7;
+
   border-radius:7px;box-shadow:0 14px 28px -12px rgba(10,36,60,.35);z-index:40;padding:4px}
+
 .menu.show{display:block}
+
 .menu div{padding:6px 9px;font-size:11.5px;color:#33506d;border-radius:4px;cursor:pointer;white-space:nowrap}
+
 .menu div:hover{background:#eef5fd;color:var(--blue)}
+
 .menu div.sel{background:#eaf3fe;color:var(--blue);font-weight:700}
+
 .menu div em{font-style:normal;color:#137333;font-size:10px;margin-left:6px}
 
+
+
 .qspin{height:27px;width:68px;border:1px solid #c9d7e6;border-radius:5px;background:#fff;display:inline-flex;
+
   align-items:center;justify-content:space-between;padding:0 5px 0 8px;font-size:11.5px;color:#25384c}
+
 .qspin .ar{display:flex;flex-direction:column;line-height:.6;font-size:6px;color:#7e93a8}
+
 .field{display:flex;flex-direction:column;gap:4px}
+
 .field label{font-size:10px;color:#6b819a}
 
+
+
 .tblwrap{overflow-x:auto;border:1px solid #e2eaf3;border-radius:6px;background:#fff}
+
 table.tbl{width:100%;border-collapse:collapse;font-size:10.5px}
+
 table.tbl th{background:#f4f8fc;color:#57708a;font-weight:700;padding:6px 8px;text-align:left;
+
   border:1px solid #e8eff7;font-size:10px;white-space:nowrap}
+
 table.tbl td{padding:5px 8px;border:1px solid #eff4fa;color:#2b4157;white-space:nowrap}
+
 table.tbl tr:nth-child(even) td{background:#fbfdff}
+
 table.tbl td.num{font-family:"JetBrains Mono",Consolas,monospace;font-size:10px;color:#37597a}
 
+
+
 .formula{background:#f8fbfe;border:1px solid #e6eef7;border-radius:7px;padding:11px 13px;
+
   font-family:"Cambria Math","Times New Roman",Georgia,serif;font-size:14px;color:#12324f;line-height:2.1;
+
   overflow-wrap:break-word;min-height:48px}
+
 .formula .sub{font-size:.72em;vertical-align:-.22em;font-style:italic}
+
 .formula i{font-style:italic}
+
 .formula .op{padding:0 .1em}
 
+
+
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:11px 0 5px}
+
 .kpi{background:linear-gradient(#fbfdff,#f4f9fe);border:1px solid #dfeaf6;border-radius:7px;padding:9px 10px;
+
   position:relative;overflow:hidden;transition:.3s}
+
 .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2.5px;background:linear-gradient(#2b8ce6,#0fb3a4)}
+
 .kpi b{display:block;font-size:16px;color:#123b5e;letter-spacing:-.3px;font-weight:800;line-height:1.3;
+
   font-family:"JetBrains Mono",Consolas,monospace}
+
 .kpi span{font-size:9.5px;color:#8299ae;letter-spacing:.7px}
+
 .kpi.fill{border-color:#c9e8e2;background:linear-gradient(#f5fffd,#eefaf7)}
 
+
+
 .qprog{height:14px;background:#eef3f9;border:1px solid #dbe5f0;border-radius:8px;overflow:hidden;
+
   margin:10px 0 8px;display:none;position:relative}
+
 .qprog.show{display:block}
+
 .qprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2b8ce6,#0fb3a4);transition:width 1.3s ease}
+
 .qprog::after{content:"模型训练中...";position:absolute;inset:0;display:grid;place-items:center;font-size:9px;color:#3d5f7f;font-weight:600}
+
 .stxt{font-size:10.5px;color:#5d7590;margin:7px 0}
+
 .stxt.run{color:var(--blue);font-weight:600}
+
 .stxt.done{color:#137333;font-weight:600}
 
+
+
 .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0 11px}
+
 .ck{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#33506d;cursor:pointer;user-select:none}
+
 .ck i{width:12px;height:12px;border:1.5px solid #b9c9da;border-radius:2px;background:#fff;flex:none;position:relative}
+
 .ck.on i{background:#1a6fd4;border-color:#1a6fd4}
+
 .ck.on i::after{content:"";position:absolute;left:2.5px;top:.5px;width:3px;height:6px;border:solid #fff;border-width:0 1.6px 1.6px 0;transform:rotate(42deg)}
+
 .ck.off{opacity:.42;cursor:not-allowed}
 
+
+
 .subtabs{display:flex;gap:5px;flex-wrap:wrap;border-bottom:1px solid #e2eaf3;padding-bottom:9px;margin-bottom:11px}
+
 .stab{font-size:10.5px;padding:6px 10px;border-radius:6px;background:#f2f7fc;color:#5d7590;cursor:pointer;
+
   border:1px solid transparent;transition:.16s;white-space:nowrap}
+
 .stab:hover{background:#e8f1fa}
+
 .stab.on{background:#fff;border-color:#c9dcf0;color:var(--blue);font-weight:700;box-shadow:0 1px 3px rgba(10,36,60,.07)}
+
 .chartbox{background:#fff;border:1px solid #e6eef7;border-radius:8px;padding:9px}
+
 .chartbox img{width:100%;display:block;border-radius:5px}
 
+
+
 .mask{display:none;position:fixed;inset:0;background:rgba(8,30,50,.34);z-index:200;place-items:center}
+
 .mask.show{display:grid}
+
 .dlg{width:min(380px,90vw);background:#fff;border-radius:12px;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);overflow:hidden}
+
 .dlg h4{font-size:13px;padding:11px 16px;background:linear-gradient(#f9fbfd,#eef3f9);border-bottom:1px solid #e5ecf4;color:#2c4a68}
+
 .dlg p{font-size:12.5px;color:#3c5470;padding:22px 18px;line-height:1.8;white-space:pre-line}
+
 .dlg .acts{display:flex;justify-content:flex-end;padding:0 16px 16px}
+
 .dlg .qbtn{min-width:76px}
 
+
+
 @media(max-width:900px){
+
   .shell{grid-template-columns:1fr;height:auto;max-height:none;min-height:0}
+
   .side{padding:14px}
+
   .sbrand{padding-bottom:12px}
+
   .slabel{display:none}
+
   .naviwrap{display:flex;flex-wrap:wrap}
+
   .navi{display:inline-flex;width:auto;margin:0 6px 6px 0}
+
   .navi .cnt{display:none}
+
   .sstate,.sfoot{display:none}
+
   .content{height:calc(100vh - 230px);min-height:520px}
+
   .checks{grid-template-columns:repeat(2,1fr)}
+
   .kpis{grid-template-columns:repeat(2,1fr)}
+
 }
+
 </style>
+
 </head>
+
 <body>
+
+
 
 <div class="shell">
 
+
+
   <aside class="side">
+
     <div class="sbrand">
+
       <div class="slogo">
+
         <svg width="21" height="21" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
+
           <path d="M4 10.5c2.3-2.7 4.6-2.7 6.9 0s4.6 2.7 6.9 0 4.6-2.7 6.9 0"/>
+
           <path d="M4 16c2.3-2.7 4.6-2.7 6.9 0s4.6 2.7 6.9 0 4.6-2.7 6.9 0"/>
+
           <path d="M4 21.5c2.3-2.7 4.6-2.7 6.9 0s4.6 2.7 6.9 0 4.6-2.7 6.9 0"/>
+
         </svg>
+
       </div>
+
       <div><b>RiverTemp-<br>Reconstructor</b><small>V1.0 · 桌面端</small></div>
+
     </div>
+
     <div class="slabel">功 能</div>
+
     <div class="naviwrap">
+
       <button class="navi on" data-page="data"><span class="ic">📂</span>数据导入<span class="cnt" id="nv-data">—</span></button>
+
       <button class="navi" data-page="train"><span class="ic">🔬</span>模型训练<span class="cnt" id="nv-train">0/5</span></button>
+
       <button class="navi" data-page="vis"><span class="ic">📊</span>结果可视化<span class="cnt" id="nv-vis">—</span></button>
+
       <button class="navi" data-page="export"><span class="ic">💾</span>结果导出<span class="cnt" id="nv-export">—</span></button>
+
     </div>
+
     <div class="sstate">
+
       <h4>当 前 状 态</h4>
+
       <div class="li"><span>观测数据</span><b id="st-data">未加载</b></div>
+
       <div class="li"><span>列名映射</span><b id="st-map">未确认</b></div>
+
       <div class="li"><span>已训练模型</span><b id="st-train">0 / 5</b></div>
+
       <div class="li"><span>模型比较</span><b id="st-cmp">未完成</b></div>
+
     </div>
+
     <div class="sfoot">Python 3.11 · PyQt5 · scikit-learn</div>
+
   </aside>
 
+
+
   <div class="main">
+
     <div class="tbar">
+
       <div class="wlogo">
+
         <svg width="11" height="11" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round">
+
           <path d="M4 11c2.3-2.7 4.6-2.7 6.9 0s4.6 2.7 6.9 0 4.6-2.7 6.9 0"/>
+
           <path d="M4 20c2.3-2.7 4.6-2.7 6.9 0s4.6 2.7 6.9 0 4.6-2.7 6.9 0"/>
+
         </svg>
+
       </div>
+
       <div class="tn">RiverTemp-Reconstructor</div>
+
       <div class="wc"><i>—</i><i>▢</i><i>✕</i></div>
+
     </div>
+
+
 
     <div class="mbar"><span>文件</span><span>数据</span><span>模型</span><span>视图</span><span>帮助</span></div>
 
+
+
     <div class="pbar" id="pbar">
+
       <div class="ptab on" data-page="data">📂 数据导入</div>
+
       <div class="ptab" data-page="train">🔬 模型训练</div>
+
       <div class="ptab" data-page="vis">📊 结果可视化</div>
+
       <div class="ptab" data-page="export">💾 结果导出</div>
+
     </div>
+
+
 
     <div class="content" id="content">
 
+
+
       <!-- 数据导入 -->
+
       <div class="page on" data-page="data">
+
         <div class="gbox">
+
           <span class="gt">数据文件</span>
+
           <div class="row">
+
             <button class="qbtn" id="btn-csv">📂 选择 CSV 文件</button>
+
             <button class="qbtn sec" id="btn-sample">📋 加载内置示例数据</button>
+
             <span class="hint" id="file-label">未选择文件</span>
+
           </div>
+
           <div class="row">
+
             <label>日期列 (Date):</label><div class="qcombo" id="c-date"><span>—</span></div>
+
             <label>实测气温 (Ta):</label><div class="qcombo" id="c-ta"><span>—</span></div>
+
             <label>实测水温 (Tw):</label><div class="qcombo" id="c-tw"><span>—</span></div>
+
           </div>
+
         </div>
+
         <div class="gbox">
+
           <span class="gt">数据预览（前 5 行，确认映射前请检查）</span>
+
           <div class="tblwrap">
+
             <table class="tbl">
+
               <thead><tr><th>Station_Name</th><th>basin</th><th>river</th><th>UNIQUE_ID</th><th>time</th><th>Ta</th><th>Tw</th></tr></thead>
+
               <tbody id="prev-body"><tr><td colspan="7" style="text-align:center;color:#9db0c4;padding:24px 0">（尚未加载数据）</td></tr></tbody>
+
             </table>
+
           </div>
+
           <div class="hint ok" id="map-info" style="min-height:18px;margin-top:10px"></div>
+
           <button class="qbtn wide" id="btn-map" disabled style="margin-top:6px">✅ 确认列名映射</button>
+
         </div>
+
       </div>
+
+
 
       <!-- 模型训练 -->
+
       <div class="page" data-page="train">
+
         <div class="gbox">
+
           <span class="gt">模型设置</span>
+
           <div class="row">
+
             <label>模型选择：</label>
+
             <div class="combowrap">
+
               <div class="qcombo" id="model-combo" style="min-width:190px"><span id="model-name">Air2Stream</span></div>
+
               <div class="menu" id="model-menu">
+
                 <div data-k="Air2Stream" class="sel">Air2Stream</div>
+
                 <div data-k="Linear">Linear Regression</div>
+
                 <div data-k="Seasonal Linear">Seasonal Linear</div>
+
                 <div data-k="Teq">Teq</div>
+
                 <div data-k="Random Forest">Random Forest</div>
+
               </div>
+
             </div>
+
             <span class="hint" id="trained-count">已训练 0/5 个</span>
+
           </div>
+
         </div>
 
+
+
         <div class="gbox">
+
           <span class="gt">模型公式</span>
+
           <div class="formula" id="formula"></div>
+
         </div>
 
+
+
         <div class="gbox">
+
           <span class="gt">参数说明</span>
+
           <div class="tblwrap">
+
             <table class="tbl">
+
               <thead><tr><th>参数名称</th><th>物理意义</th><th>单位</th><th>取值范围</th></tr></thead>
+
               <tbody id="param-body"></tbody>
+
             </table>
+
           </div>
+
           <div class="hint" id="model-desc" style="margin-top:9px;line-height:1.7;white-space:pre-line"></div>
+
         </div>
 
+
+
         <div class="gbox">
+
           <span class="gt">模型训练</span>
+
           <div class="row" id="de-row">
+
             <div class="field"><label>种群规模 (popsize)</label><div class="qspin"><span>15</span><span class="ar">▲<br>▼</span></div></div>
+
             <div class="field"><label>最大迭代 (maxiter)</label><div class="qspin"><span>100</span><span class="ar">▲<br>▼</span></div></div>
+
             <div class="field"><label>收敛阈值 (tol)</label><div class="qspin"><span>0.01</span><span class="ar">▲<br>▼</span></div></div>
+
           </div>
+
           <div class="row" style="margin-top:12px">
+
             <button class="qbtn" id="btn-train" disabled>开始模型训练</button>
+
             <button class="qbtn sec" id="btn-save" disabled>保存训练结果</button>
+
           </div>
+
           <div class="qprog" id="prog"><i></i></div>
+
           <div class="stxt" id="train-status">就绪 — 请先完成数据映射</div>
+
           <div class="kpis" id="kpis">
+
             <div class="kpi"><b id="k-rmse">--</b><span>RMSE</span></div>
+
             <div class="kpi"><b id="k-nse">--</b><span>NSE</span></div>
+
             <div class="kpi"><b id="k-r2">--</b><span>R²</span></div>
+
             <div class="kpi"><b id="k-mae">--</b><span>MAE</span></div>
+
           </div>
+
           <div class="hint" style="margin-top:10px">训练得到的参数值：</div>
+
           <div class="tblwrap" style="margin-top:5px">
+
             <table class="tbl">
+
               <thead><tr><th style="width:38%">参数</th><th>数值</th></tr></thead>
+
               <tbody id="fitted-body"><tr><td colspan="2" style="text-align:center;color:#9db0c4;padding:14px 0">—</td></tr></tbody>
+
             </table>
+
           </div>
+
         </div>
 
+
+
         <div class="gbox">
+
           <span class="gt">模型比较（与训练独立，可任选已训练模型）</span>
+
           <div class="hint">勾选参与比较的模型（至少 2 个已训练）：</div>
+
           <div class="checks" id="checks">
+
             <label class="ck off" data-k="Air2Stream"><i></i>Air2Stream</label>
+
             <label class="ck off" data-k="Linear"><i></i>Linear Regression</label>
+
             <label class="ck off" data-k="Seasonal Linear"><i></i>Seasonal Linear</label>
+
             <label class="ck off" data-k="Teq"><i></i>Teq</label>
+
             <label class="ck off" data-k="Random Forest"><i></i>Random Forest</label>
+
           </div>
+
           <div class="row">
+
             <button class="qbtn sec sm" id="btn-all">勾选全部已训练</button>
+
             <button class="qbtn sec sm" id="btn-none">取消全选</button>
+
           </div>
+
           <div class="row" style="margin-top:9px">
+
             <button class="qbtn green wide" id="btn-compare" disabled>模型比较</button>
+
           </div>
+
           <div id="cmp-wrap" style="display:none;margin-top:12px">
+
             <div class="hint" style="margin-bottom:5px">比较结果（按 RMSE 升序）：</div>
+
             <div class="tblwrap">
+
               <table class="tbl">
+
                 <thead><tr><th>模型</th><th>RMSE</th><th>MAE</th><th>R²</th><th>NSE</th></tr></thead>
+
                 <tbody id="cmp-body"></tbody>
+
               </table>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
+
+
 
       <!-- 结果可视化 -->
+
       <div class="page" data-page="vis">
+
         <div class="gbox">
+
           <span class="gt">结果可视化</span>
+
           <div class="subtabs" id="subtabs">
+
             <div class="stab on" data-img="ts">📈 当前模型时间序列</div>
+
             <div class="stab" data-img="sc">🎯 当前模型散点图</div>
+
             <div class="stab" data-img="mts">📈 多模型时间序列</div>
+
             <div class="stab" data-img="msc">🎯 多模型散点图</div>
+
             <div class="stab" data-img="rmse">📊 RMSE 柱状图</div>
+
             <div class="stab" data-img="nse">📊 NSE 柱状图</div>
+
           </div>
+
           <div class="chartbox"><img id="chart-img" alt="图表"></div>
+
           <div class="hint" style="margin-top:9px">提示：可使用图表上方工具栏缩放、平移、保存图片。</div>
+
         </div>
+
       </div>
+
+
 
       <!-- 结果导出 -->
+
       <div class="page" data-page="export">
+
         <div class="gbox">
+
           <span class="gt">结果导出</span>
+
           <div class="hint" style="margin-bottom:6px">率定结果预览（前 10 行）：</div>
+
           <div class="tblwrap">
+
             <table class="tbl">
+
               <thead><tr><th>Date</th><th>Observed_Tw</th><th>Simulated_Tw</th><th>Residual</th></tr></thead>
+
               <tbody id="exp-body"><tr><td colspan="4" style="text-align:center;color:#9db0c4;padding:22px 0">（尚无结果）</td></tr></tbody>
+
             </table>
+
           </div>
+
           <button class="qbtn wide" id="btn-exp1" disabled style="margin-top:11px">⬇️ 导出结果 CSV</button>
+
           <button class="qbtn wide sec" id="btn-exp2" disabled style="margin-top:8px">⬇️ 导出模型比较 CSV / PNG</button>
+
         </div>
+
       </div>
 
+
+
     </div>
+
+
 
     <div class="status">
+
       <span id="status-text">当前模型：Air2Stream ｜ 训练状态：未训练 ｜ 已累计训练 0/5 个模型</span>
+
       <span class="right" id="status-right">就绪</span>
+
     </div>
+
   </div>
+
 </div>
+
+
 
 <div class="mask" id="mask">
+
   <div class="dlg">
+
     <h4 id="dlg-title">提示</h4>
+
     <p id="dlg-msg"></p>
+
     <div class="acts"><button class="qbtn" id="dlg-ok">确定</button></div>
+
   </div>
+
 </div>
 
+
+
 <script>
+
 (function(){
+
 "use strict";
+
 var $ = function(s,r){ return (r||document).querySelector(s); };
+
 var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
 
+
+
 var A_TS="assets/comparison_timeseries.png", A_SC="assets/comparison_scatter.png", A_RMSE="assets/comparison_rmse.png", A_NSE="assets/comparison_nse.png";
+
 var IMG={ts:A_TS,sc:A_SC,mts:A_TS,msc:A_SC,rmse:A_RMSE,nse:A_NSE};
 
+
+
 var preview=[
+
 ["一道湾","西北诸河","UNKNOWN","一道湾_西北诸河_UNKNOWN","2022/1/1 0:00","-25.206","5.944"],
+
 ["一道湾","西北诸河","UNKNOWN","一道湾_西北诸河_UNKNOWN","2022/1/2 0:00","-26.662","5.983"],
+
 ["一道湾","西北诸河","UNKNOWN","一道湾_西北诸河_UNKNOWN","2022/1/3 0:00","-25.041","6.078"],
+
 ["一道湾","西北诸河","UNKNOWN","一道湾_西北诸河_UNKNOWN","2022/1/4 0:00","-23.221","5.992"],
+
 ["一道湾","西北诸河","UNKNOWN","一道湾_西北诸河_UNKNOWN","2022/1/5 0:00","-17.496","5.635"]];
 
+
+
 var expRows=[
+
 ["2022-01-01","5.944","5.982","0.039"],["2022-01-02","5.983","5.996","0.013"],
+
 ["2022-01-03","6.078","6.024","-0.054"],["2022-01-04","5.992","5.990","-0.002"],
+
 ["2022-01-05","5.635","5.671","0.036"],["2022-01-06","5.545","5.559","0.014"],
+
 ["2022-01-07","5.871","5.853","-0.018"],["2022-01-08","5.742","5.771","0.029"],
+
 ["2022-01-09","5.912","5.898","-0.014"],["2022-01-10","6.021","6.003","-0.018"]];
 
+
+
 var MODELS={
+
 "Air2Stream":{
+
   label:"Air2Stream",
+
   formula:'<i>T</i><span class="sub">w</span>(<i>t</i>) <span class="op">=</span> <i>T</i><span class="sub">w</span>(<i>t</i>−1) <span class="op">+</span> <i>a</i><span class="sub">1</span> <span class="op">+</span> <i>a</i><span class="sub">2</span><i>T</i><span class="sub">a</span>(<i>t</i>−1) <span class="op">−</span> <i>a</i><span class="sub">3</span><i>T</i><span class="sub">w</span>(<i>t</i>−1) <span class="op">+</span> <i>a</i><span class="sub">4</span>cos( 2π(<i>doy</i>−<i>a</i><span class="sub">5</span>) / 365 )',
+
   params:[["a1","热输入基准项","℃/day","[-20, 20]"],["a2","气温影响系数","无量纲","[1e-6, 2]"],
+
           ["a3","热耗散系数","day⁻¹","[0, 1]"],["a4","季节振幅参数","℃","[-20, 20]"],
+
           ["a5","季节相位参数（年积日）","day","[0, 365]"]],
+
   desc:"基于热平衡方程和随机参数率定方法建立的混合模型。\n训练方法：差分进化算法（Differential Evolution）",
+
   metrics:["0.8219","0.9318","0.9318","0.5977"],
+
   fitted:[["a1","3.565601"],["a2","0.015439"],["a3","0.355910"],["a4","-1.247744"],["a5","31.958875"]],
+
   sec:27.4, de:true},
+
 "Linear":{
+
   label:"Linear Regression",
+
   formula:'<i>T</i><span class="sub">w</span> <span class="op">=</span> <i>a</i> <span class="op">+</span> <i>b</i><i>T</i><span class="sub">a</span>',
+
   params:[["a","截距","℃","—"],["b","气温敏感系数","℃/℃","—"]],
+
   desc:"最简单线性关系模型。\n训练方法：LinearRegression",
+
   metrics:["1.6030","0.7405","0.7405","1.2226"],
+
   fitted:[["a","10.791724"],["b","0.187171"]],sec:0.1,de:false},
+
 "Seasonal Linear":{
+
   label:"Seasonal Linear",
+
   formula:'1–6月： <i>T</i><span class="sub">w</span> <span class="op">=</span> <i>a</i><span class="sub">1</span> <span class="op">+</span> <i>b</i><span class="sub">1</span><i>T</i><span class="sub">a</span> &nbsp;&nbsp;&nbsp; 7–12月： <i>T</i><span class="sub">w</span> <span class="op">=</span> <i>a</i><span class="sub">2</span> <span class="op">+</span> <i>b</i><span class="sub">2</span><i>T</i><span class="sub">a</span>',
+
   params:[["a1","前半年截距","℃","—"],["b1","前半年气温系数","℃/℃","—"],
+
           ["a2","后半年截距","℃","—"],["b2","后半年气温系数","℃/℃","—"]],
+
   desc:"考虑季节差异的分段线性模型。\n训练方法：两次 LinearRegression",
+
   metrics:["1.2685","0.8375","0.8375","0.9703"],
+
   fitted:[["a1","9.751092"],["b1","11.734123"],["a2","0.178775"],["b2","0.180967"]],sec:0.2,de:false},
+
 "Teq":{
+
   label:"Teq",
+
   formula:'<i>T</i><span class="sub">w</span> <span class="op">=</span> max( <i>e</i><span class="sub">1</span> <span class="op">+</span> <i>e</i><span class="sub">2</span><i>T</i><span class="sub">a</span> , 0 )',
+
   params:[["e1","平衡温度基准值","℃","—"],["e2","气温响应系数","℃/℃","—"]],
+
   desc:"平衡温度形式，预测水温不低于 0 ℃。\n训练方法：LinearRegression + 物理约束截断",
+
   metrics:["1.6030","0.7405","0.7405","1.2226"],
+
   fitted:[["e1","10.791724"],["e2","0.187171"]],sec:0.1,de:false},
+
 "Random Forest":{
+
   label:"Random Forest",
+
   formula:'<span style="font-family:inherit;color:#3d5f7f">特征向量&nbsp; X = [ T<sub>a</sub> , month , doy ]&nbsp;，由 200 棵决策树取平均</span>',
+
   params:[["n_estimators","决策树数量","—","200"],["max_depth","最大树深","—","10"],["random_state","随机种子","—","42"]],
+
   desc:"基于集成树模型进行非线性预测。\n训练方法：RandomForestRegressor",
+
   metrics:["0.1721","0.9970","0.9970","0.1160"],
+
   fitted:[["n_estimators","200.000000"],["max_depth","10.000000"],["random_state","42.000000"]],
+
   sec:0.3,de:false}
+
 };
+
+
 
 var ORDER=["Random Forest","Air2Stream","Seasonal Linear","Linear","Teq"];
+
 var CMP={
+
 "Random Forest":["Random Forest","0.1721","0.1160","0.9970","0.9970"],
+
 "Air2Stream":["Air2Stream","0.8219","0.5977","0.9318","0.9318"],
+
 "Seasonal Linear":["Seasonal Linear","1.2685","0.9703","0.8375","0.8375"],
+
 "Linear":["Linear Regression","1.6030","1.2226","0.7405","0.7405"],
+
 "Teq":["Teq","1.6030","1.2226","0.7405","0.7405"]
+
 };
 
+
+
 var loaded=false, mapped=false, current="Air2Stream";
+
 var trained={}, checked={}, compared=false, pendingJump=null;
+
 var content=$("#content"), tok=0;
 
+
+
 function dialog(title,msg){
+
   $("#dlg-title").textContent=title; $("#dlg-msg").textContent=msg; $("#mask").classList.add("show");
+
 }
+
 $("#dlg-ok").addEventListener("click",function(){
+
   $("#mask").classList.remove("show");
+
   if(pendingJump){ var p=pendingJump; pendingJump=null; go(p); }
+
 });
+
 $("#mask").addEventListener("click",function(e){
+
   if(e.target===this){ this.classList.remove("show"); pendingJump=null; }
+
 });
+
+
 
 function go(p){
+
   $$(".page").forEach(function(el){ el.classList.toggle("on", el.dataset.page===p); });
+
   $$(".navi").forEach(function(el){ el.classList.toggle("on", el.dataset.page===p); });
+
   $$(".ptab").forEach(function(el){ el.classList.toggle("on", el.dataset.page===p); });
+
   content.scrollTop=0;
+
 }
+
 $$(".navi").concat($$(".ptab")).forEach(function(el){
+
   el.addEventListener("click",function(){ go(el.dataset.page); });
+
 });
+
+
 
 function rows(tb,arr,cls){
+
   tb.innerHTML=arr.map(function(r){ return "<tr>"+r.map(function(c){
+
     return '<td class="'+(cls||"")+'">'+c+"</td>"; }).join("")+"</tr>"; }).join("");
+
 }
+
 function refreshSide(){
+
   var n=Object.keys(trained).length, cnt=0;
+
   Object.keys(checked).forEach(function(k){ if(checked[k]) cnt++; });
+
   $("#nv-data").textContent=loaded?"365":"—";
+
   $("#nv-train").textContent=n+"/5";
+
   $("#nv-vis").textContent=compared?"6":"—";
+
   $("#nv-export").textContent=n?"可导出":"—";
+
   $("#st-data").textContent=loaded?"365 条":"未加载";
+
   $("#st-map").textContent=mapped?"已完成":"未确认";
+
   $("#st-train").textContent=n+" / 5";
+
   $("#st-cmp").textContent=compared?"已完成":"未完成";
+
   var st=trained[current]?"已训练":"未训练";
+
   var ex=trained[current]?" ｜ 训练耗时："+trained[current].sec.toFixed(1)+"秒":"";
+
   $("#status-text").innerHTML="当前模型："+MODELS[current].label+" ｜ 训练状态："+st+ex+" ｜ 已累计训练 "+n+"/5 个模型";
+
   $("#status-right").textContent=compared?"比较结果已生成":(n?"就绪":"等待数据映射");
+
   $$(".ck").forEach(function(c){
+
     var on=!!trained[c.dataset.k];
+
     c.classList.toggle("off",!on);
+
     if(!on){ c.classList.remove("on"); checked[c.dataset.k]=false; }
+
   });
+
   $("#btn-compare").disabled=cnt<2;
+
   $("#trained-count").textContent="已训练 "+n+"/5 个";
+
 }
+
+
 
 function setKpi(v){ ["k-rmse","k-nse","k-r2","k-mae"].forEach(function(id,i){
+
   var e=$("#"+id); e.textContent=v[i]; e.parentElement.classList.add("fill"); }); }
+
 function clearKpi(){ ["k-rmse","k-nse","k-r2","k-mae"].forEach(function(id){
+
   var e=$("#"+id); e.textContent="--"; e.parentElement.classList.remove("fill"); }); }
+
 function setFitted(arr){ $("#fitted-body").innerHTML=arr.map(function(r){
+
   return "<tr><td>"+r[0]+'</td><td class="num">'+r[1]+"</td></tr>"; }).join(""); }
 
+
+
 function showModel(key){
+
   current=key;
+
   var m=MODELS[key];
+
   $("#model-name").textContent=m.label;
+
   $("#formula").innerHTML=m.formula;
+
   rows($("#param-body"),m.params,"");
+
   $("#model-desc").textContent=m.desc;
+
   $("#de-row").style.display=m.de?"flex":"none";
+
   $$("#model-menu div").forEach(function(d){ d.classList.toggle("sel",d.dataset.k===key); });
+
   if(trained[key]){
+
     setKpi(m.metrics); setFitted(m.fitted);
+
     $("#train-status").className="stxt done";
+
     $("#train-status").textContent=m.label+" 训练完成（耗时 "+m.sec.toFixed(1)+" 秒）";
+
     $("#btn-save").disabled=false;
+
   }else{
+
     clearKpi();
+
     $("#fitted-body").innerHTML='<tr><td colspan="2" style="text-align:center;color:#9db0c4;padding:14px 0">—</td></tr>';
+
     $("#train-status").className="stxt";
+
     $("#train-status").textContent=m.label+" — 尚未训练，请点击「开始模型训练」";
+
     $("#btn-save").disabled=true;
+
   }
+
   refreshSide();
+
 }
 
+
+
 /* 数据导入 */
+
 $("#btn-sample").addEventListener("click",function(){
+
   loaded=true;
+
   $("#file-label").textContent="已加载：示例数据.csv  （共 365 行 × 7 列）";
+
   $("#file-label").classList.add("ok");
+
   $("#c-date").firstElementChild.textContent="time";
+
   $("#c-ta").firstElementChild.textContent="Ta";
+
   $("#c-tw").firstElementChild.textContent="Tw";
+
   rows($("#prev-body"),preview,"");
+
   $("#btn-map").disabled=false;
+
   $("#train-status").textContent="就绪 — 请先完成数据映射";
+
   refreshSide();
+
 });
+
 $("#btn-csv").addEventListener("click",function(){
+
   dialog("提示","演示环境使用内置示例数据。\n请点击「加载内置示例数据」继续。");
+
 });
+
 $("#btn-map").addEventListener("click",function(){
+
   if(!loaded) return;
+
   mapped=true;
+
   $("#map-info").textContent="✓ 映射成功：有效记录 365 条，时间范围 2022-01-01 — 2023-01-01";
+
   $("#train-status").textContent="已就绪，共 365 条有效数据 — 请依次训练各模型";
+
   $("#btn-train").disabled=false;
+
   refreshSide();
+
   pendingJump="train";
+
   dialog("成功","列名映射已确认！\n有效记录：365 条");
+
 });
+
+
 
 /* 模型选择 */
+
 $("#model-combo").addEventListener("click",function(e){
+
   e.stopPropagation();
+
   $("#model-menu").classList.toggle("show");
+
   this.classList.toggle("open");
+
 });
+
 $$("#model-menu div").forEach(function(d){
+
   d.addEventListener("click",function(e){
+
     e.stopPropagation();
+
     showModel(d.dataset.k);
+
     $("#model-menu").classList.remove("show");
+
     $("#model-combo").classList.remove("open");
+
   });
+
 });
+
 document.addEventListener("click",function(){
+
   $("#model-menu").classList.remove("show");
+
   $("#model-combo").classList.remove("open");
+
 });
+
+
 
 /* 训练 */
+
 $("#btn-train").addEventListener("click",function(){
+
   if(!mapped) return;
+
   var key=current, m=MODELS[key], t=++tok;
+
   $("#btn-train").disabled=true;
+
   $("#btn-compare").disabled=true;
+
   $("#prog").classList.add("show");
+
   $("#prog").firstElementChild.style.width="0";
+
   $("#train-status").className="stxt run";
+
   $("#train-status").textContent="正在训练 "+m.label+" ...";
+
   $("#status-right").textContent=m.label+" 训练中...";
+
   setTimeout(function(){ if(t===tok) $("#prog").firstElementChild.style.width="100%"; },50);
+
   setTimeout(function(){
+
     if(t!==tok) return;
+
     $("#prog").classList.remove("show");
+
     $("#prog").firstElementChild.style.width="0";
+
     $("#btn-train").disabled=false;
+
     trained[key]={sec:m.sec};
+
     checked[key]=true;
+
     setKpi(m.metrics); setFitted(m.fitted);
+
     $("#train-status").className="stxt done";
+
     $("#train-status").textContent=m.label+" 训练完成（耗时 "+m.sec.toFixed(1)+" 秒）";
+
     $("#btn-save").disabled=false;
+
     $("#btn-exp1").disabled=false;
+
     $$(".ck").forEach(function(c){
+
       if(c.dataset.k===key){ c.classList.remove("off"); c.classList.add("on"); }
+
     });
+
     var menuItem=$('#model-menu div[data-k="'+key+'"]');
+
     if(menuItem && !menuItem.querySelector("em")) menuItem.insertAdjacentHTML("beforeend","<em>[已训练]</em>");
+
     rows($("#exp-body"),expRows,"");
+
     refreshSide();
+
   },1400);
+
 });
+
 $("#btn-save").addEventListener("click",function(){
+
   var nm=MODELS[current].label.replace(/\s/g,"_");
+
   dialog("成功","参数与指标：\nRiverTemp_"+nm+"_training.csv\n时间序列：\nRiverTemp_"+nm+"_series.csv");
+
 });
+
+
 
 /* 模型比较 */
+
 $$(".ck").forEach(function(c){
+
   c.addEventListener("click",function(e){
+
     e.preventDefault();
+
     if(!trained[c.dataset.k]) return;
+
     var k=c.dataset.k;
+
     checked[k]=!checked[k];
+
     c.classList.toggle("on",checked[k]);
+
     refreshSide();
+
   });
+
 });
+
 $("#btn-all").addEventListener("click",function(){
+
   Object.keys(trained).forEach(function(k){ checked[k]=true; });
+
   refreshSide();
+
 });
+
 $("#btn-none").addEventListener("click",function(){
+
   Object.keys(checked).forEach(function(k){ checked[k]=false; });
+
   refreshSide();
+
 });
+
 $("#btn-compare").addEventListener("click",function(){
+
   var sel=ORDER.filter(function(k){ return checked[k]; });
+
   if(sel.length<2) return;
+
   compared=true;
+
   rows($("#cmp-body"),sel.map(function(k){ return CMP[k]; }),"num");
+
   $("#cmp-wrap").style.display="block";
+
   $("#btn-exp2").disabled=false;
+
   $("#train-status").textContent="模型比较完成！图表与 CSV 已生成";
+
   refreshSide();
+
   go("vis");
+
 });
+
+
 
 /* 可视化 */
+
 $$(".stab").forEach(function(s){
+
   s.addEventListener("click",function(){
+
     $$(".stab").forEach(function(x){ x.classList.remove("on"); });
+
     s.classList.add("on");
+
     $("#chart-img").src=IMG[s.dataset.img];
+
   });
+
 });
+
 $("#chart-img").src=IMG.ts;
 
+
+
 /* 导出 */
+
 $("#btn-exp1").addEventListener("click",function(){
+
   dialog("成功","结果已保存：\nRiverTemp_"+MODELS[current].label.replace(/\s/g,"_")+"_series.csv");
-});
-$("#btn-exp2").addEventListener("click",function(){
-  dialog("成功","比较结果已保存：\nmodel_comparison.csv\n\n图片：\ncomparison_timeseries.png\ncomparison_scatter.png\ncomparison_rmse.png\ncomparison_nse.png");
+
 });
 
+$("#btn-exp2").addEventListener("click",function(){
+
+  dialog("成功","比较结果已保存：\nmodel_comparison.csv\n\n图片：\ncomparison_timeseries.png\ncomparison_scatter.png\ncomparison_rmse.png\ncomparison_nse.png");
+
+});
+
+
+
 showModel("Air2Stream");
+
 refreshSide();
+
 })();
+
 </script>
+
 </body>
+
 </html>
+

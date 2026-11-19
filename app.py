@@ -1,4 +1,230 @@
-cayout()
+# -*- coding: utf-8 -*-
+"""
+RiverTemp-Reconstructor — 河流水温模拟与重建桌面软件
+
+多模型（Air2Stream / 线性 / 季节线性 / 平衡温度 / 随机森林）水温重构，
+差分进化参数率定，出版级可视化，结果一键导出。
+
+说明：本文件开头部分曾因误操作被截断，现已依据其余完整代码与各模块接口重建。
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+import traceback
+
+import matplotlib
+
+matplotlib.use("Qt5Agg")
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QMainWindow,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QSpinBox,
+    QTabWidget,
+    QTableWidget,
+    QTableWidgetItem,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
+)
+
+from core import prepare_series, results_to_dataframe
+from model_comparison import (
+    build_comparison_from_results,
+    export_comparison_csv,
+    metrics_summary_table,
+    plot_nse_bar,
+    plot_rmse_bar,
+    plot_scatter_comparison,
+    plot_time_series_comparison,
+    save_comparison_figures,
+)
+from model_training import (
+    count_trained,
+    empty_model_results,
+    is_trained,
+    train_model,
+    trained_model_keys,
+)
+from models.model_catalog import (
+    ALL_MODEL_KEYS,
+    GUI_MODEL_LABELS,
+    MODEL_KEY_TO_LABEL,
+    get_catalog,
+    get_model_key,
+)
+from ui.formula_panel import FormulaPanel
+
+# 中文字体，避免图表中文显示为方块
+plt.rcParams["font.sans-serif"] = ["SimHei", "Microsoft YaHei", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
+
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(APP_DIR, "startup_error.log")
+
+
+def _show_fatal(title: str, message: str) -> None:
+    """启动失败时弹窗并写入日志，避免窗口闪退看不到报错。"""
+    try:
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write(message)
+    except Exception:
+        pass
+    try:
+        from ctypes import windll
+
+        windll.user32.MessageBoxW(0, message, title, 0x10)
+    except Exception:
+        print(f"{title}: {message}", file=sys.stderr)
+
+
+def _sample_path() -> str:
+    return os.path.join(APP_DIR, "示例数据.csv")
+
+
+class MetricCard(QFrame):
+    """大数字指标卡片（对应网页版 st.metric）。"""
+
+    def __init__(self, title: str, parent=None):
+        super().__init__(parent)
+        self.setFrameShape(QFrame.StyledPanel)
+        self.setStyleSheet(
+            "MetricCard{background:#f8fafc;border:1px solid #e2e8f0;"
+            "border-radius:8px;padding:6px;}"
+        )
+        layout = QVBoxLayout(self)
+        self.title_label = QLabel(title)
+        self.title_label.setStyleSheet("color:#5f6368;font-size:11px;")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.value_label = QLabel("--")
+        self.value_label.setStyleSheet(
+            "color:#1a73e8;font-size:22px;font-weight:bold;"
+        )
+        self.value_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title_label)
+        layout.addWidget(self.value_label)
+
+    def set_value(self, text: str) -> None:
+        self.value_label.setText(str(text))
+
+
+class ModelTrainThread(QThread):
+    """在后台线程训练模型，避免阻塞界面。"""
+
+    train_completed = pyqtSignal(dict)
+    error_occurred = pyqtSignal(str)
+
+    def __init__(
+        self,
+        data_dict: dict,
+        model_key: str,
+        popsize: int = 15,
+        maxiter: int = 100,
+        tol: float = 0.01,
+        parent=None,
+    ):
+        super().__init__(parent)
+        self.data_dict = data_dict
+        self.model_key = model_key
+        self.popsize = popsize
+        self.maxiter = maxiter
+        self.tol = tol
+
+    def run(self):
+        try:
+            entry = train_model(
+                self.model_key,
+                self.data_dict,
+                popsize=self.popsize,
+                maxiter=self.maxiter,
+                tol=self.tol,
+            )
+            self.train_completed.emit(entry)
+        except Exception as exc:
+            self.error_occurred.emit(f"{type(exc).__name__}: {exc}")
+
+
+class ChartPanel(QWidget):
+    """带导航工具栏的 matplotlib 图表面板。"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.figure = Figure(figsize=(8, 4.5), dpi=100)
+        self.canvas = FigureCanvas(self.figure)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        layout.addWidget(self.toolbar)
+        layout.addWidget(self.canvas)
+
+    def clear(self) -> None:
+        self.figure.clear()
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("RiverTemp-Reconstructor — 河流水温模拟与重建")
+        self.resize(1280, 860)
+        self.setFont(QFont("Microsoft YaHei", 10))
+
+        # 运行期状态
+        self.data: pd.DataFrame | None = None
+        self.data_dict: dict | None = None
+        self.model_results = empty_model_results()
+        self.comparison_results: dict | None = None
+        self.train_thread: ModelTrainThread | None = None
+        self._last_train_elapsed = 0.0
+
+        self.tabs = QTabWidget()
+        self.setCentralWidget(self.tabs)
+        self.statusBar().showMessage("就绪 — 请先在数据导入页加载数据")
+
+        self.create_import_tab()
+        self.create_calibration_tab()
+        self.create_visualization_tab()
+        self.create_export_tab()
+
+        # 初始化公式面板（模型下拉已在 create_calibration_tab 中填充，此处不要重复填充，
+        # 否则在信号已连接时再次 clear/addItem 会导致重入崩溃）
+        self._on_model_selection_changed()
+
+    # ─── 特性 1：数据导入与列名映射 ──────────────────────────
+    def create_import_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        group = QGroupBox("数据导入与列名映射")
+        gl = QVBoxLayout()
+
+        title = QLabel("导入包含时间、气温（Ta）、水温（Tw）的 CSV 文件")
+        title.setStyleSheet("font-size:12px;color:#3c5470;font-weight:bold;")
+        gl.addWidget(title)
+
+        btn_row = QHBoxLayout()
         self.file_btn = QPushButton("📂 选择 CSV 文件")
         self.file_btn.clicked.connect(self.select_file)
         sample_btn = QPushButton("📋 加载内置示例数据")
@@ -793,4 +1019,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-c
